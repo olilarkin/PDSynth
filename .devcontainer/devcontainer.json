@@ -1,0 +1,15 @@
+{
+    "name": "iPlug2WAM",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "forwardPorts": [
+            8001
+        ],
+    },
+    "extensions": [
+        "ms-vscode.cpptools",
+        "cschlosser.doxdocgen",
+        "hellbent.vscode-faust"
+    ],
+    "postCreateCommand": "./setup_container.sh MyNewPlugin MyManufacturerName"
+}
