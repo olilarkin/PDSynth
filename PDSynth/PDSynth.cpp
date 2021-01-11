@@ -69,6 +69,13 @@ void PDSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   
   mDSP.render(renderCtx);
   mIncomingMIDIMessages.clear();
+  
+  mSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
+}
+
+void PDSynth::OnIdle()
+{
+  mSender.TransmitData(*this);
 }
 
 void PDSynth::ProcessMidiMsg(const IMidiMsg& msg)

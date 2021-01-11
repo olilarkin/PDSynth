@@ -2,13 +2,16 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "PDSynth_DSP.h"
+#include "ISender.h"
+
 #include <map>
 
 const int kNumPresets = 1;
 
 enum ECtrlTags
 {
-  kCtrlTagMeter = 0
+  kCtrlTagMeter = 0,
+  kCtrlTagKeyboard
 };
 
 using namespace iplug;
@@ -30,6 +33,7 @@ public:
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
+  void OnIdle() override;
   DSP mDSP;
   int mSessionID = 0;
   IPlugQueue<int> mParamsToUpdate {DSP::numParameters};
@@ -39,4 +43,5 @@ public:
 
   int GetIPlugParamIdx(const char* soulParamID) { return mParamMap[soulParamID]; }
   std::map<const char*, int> mParamMap;
+  IPeakSender<> mSender;
 };

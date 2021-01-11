@@ -802,6 +802,7 @@
 		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCDB64822C849D200698A4B /* IGraphicsSkia.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia.cpp; sourceTree = "<group>"; };
 		4FCDB64922C849D200698A4B /* IGraphicsSkia.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
+		4FCFEB1525AD06F500298AB9 /* PDSynth_GUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PDSynth_GUI.cpp; path = ../PDSynth_GUI.cpp; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* PDSynth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDSynth.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../iPlug2/WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
 		4FD16D0313B63494001D0217 /* swell-dlggen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../iPlug2/WDL/swell/swell-dlggen.h"; sourceTree = SOURCE_ROOT; };
@@ -933,6 +934,7 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* PDSynth.h */,
 				4F3862ED2014BBEC0009F402 /* PDSynth.cpp */,
+				4FCFEB1525AD06F500298AB9 /* PDSynth_GUI.cpp */,
 				4F9313232315CA1100DB2383 /* README.md */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
