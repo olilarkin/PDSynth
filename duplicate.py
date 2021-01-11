@@ -229,19 +229,19 @@ def main():
     newroot = ""
 
   #replace manufacturer name strings
-  for dir in dirwalk(outputpath, inputprojectname, outputprojectname, "AcmeInc", manufacturer, oldroot, newroot):
+  for dir in dirwalk(outputpath, inputprojectname, outputprojectname, "OliLarkin", manufacturer, oldroot, newroot):
     pass
 
   #replace project name in root
-  for dir in dirwalk(scriptpath, inputprojectname, outputprojectname, "AcmeInc", manufacturer, oldroot, newroot):
+  for dir in dirwalk(scriptpath, inputprojectname, outputprojectname, "OliLarkin", manufacturer, oldroot, newroot):
     pass
 
   #replace project name in github
-  for dir in dirwalk(scriptpath + "/.github/workflows", inputprojectname, outputprojectname, "AcmeInc", manufacturer, oldroot, newroot):
+  for dir in dirwalk(scriptpath + "/.github/workflows", inputprojectname, outputprojectname, "OliLarkin", manufacturer, oldroot, newroot):
     pass
 
   #replace project name in vscode
-  for dir in dirwalk(scriptpath + "/.vscode", inputprojectname, outputprojectname, "AcmeInc", manufacturer, oldroot, newroot):
+  for dir in dirwalk(scriptpath + "/.vscode", inputprojectname, outputprojectname, "OliLarkin", manufacturer, oldroot, newroot):
     pass
 
   # print("\ncopying gitignore template into project folder\n")

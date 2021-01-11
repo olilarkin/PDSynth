@@ -1,0 +1,254 @@
+/*
+    A CZ Style phase distortion synthesiser
+*/
+
+//==============================================================================
+/** A Phase Distortion Oscillator, with the 8 waveshapes of the CZ series synthesiser
+    This oscillator will cause aliasing with high frequencies, you may want to oversample, or limit the DCW parameter based on frequency
+    Some waveshapes may generate a DC offset, which you can correct with a DC Filter
+*/
+namespace CZOSC (using SampleType = float32)
+{
+    // Processor parameter min/max/defaults
+    let minFreqHz = 5.0f;
+    let maxFreqHz = 22000.0f;
+    let defaultFreqHz = 1000.0f;
+
+    namespace Shape
+    {
+        let Saw      = 0;
+        let Square   = 1;
+        let Pulse    = 2;
+        let DblSine  = 3;
+        let SawPulse = 4;
+        let Reso1    = 5;
+        let Reso2    = 6;
+        let Reso3    = 7;
+    }
+
+    namespace Shapers
+    {
+        float32 Cosine (float32 phase) { return cos (phase * float32 (twoPi)); }
+
+        float32 Triangle (float32 phase) { return 1.0f - abs ((phase * 2.0f) - 1.0f ); }
+
+        float32 RampDown (float32 phase) {  return (1.0f - phase); }
+
+        float32 HalfTrapezoid (float32 phase) { return min ((phase * -2.0f) + 2.0f, 1.0f); }
+
+        // The classic 8 CZ shapes
+
+        float32 Saw (float32 phase, float32 dw)
+        {
+            dw = clamp ((1.0f - dw) * 0.5f, 0.001f, 0.5f);
+            let dw_i = 0.5f - dw;
+            let a = phase * (dw_i/dw);
+            let b = (-1.0f * phase + 1.0f) * (dw_i / (1.0f - dw));
+            return -Cosine (phase + min (a, b));
+        }
+
+        float32 Square (float32 phase, float32 dw)
+        {
+            dw = clamp (dw, 0.001f, 0.999f);
+            let w = 1.0f / (1.0f - dw);
+            let a = phase * w;
+            let b = 1.0f - max (phase, a) + (dw * (w / 2.0f));
+            return -Cosine (max (min (min (a, b), 0.5f), 0.0f));
+        }
+
+        float32 Pulse (float32 phase, float32 dw)
+        {
+            dw = clamp (dw, 0.001f, 0.997f);
+            let a = 1.0f / (1.0f - dw);
+            let b = (a / 2.0f) * dw;
+            return -Cosine (min (max ((phase * a) - b, 0.0f), 1.0f));
+        }
+
+        float32 DblSine (float32 phase, float32 dw)
+        {
+            dw = clamp ((1.0f - dw) * 0.5f, 0.005f, 0.5f);
+            let dw_i = 0.5f - dw;
+            let a = phase * (dw_i / dw);
+            let b = (-1.0f * phase + 1.0f) * (dw_i / (1.0f - dw));
+            return -Cosine (fmod ( phase + min (a, b), 1.0f) * 2.0f);
+        }
+
+        float32 SawPulse (float32 phase, float32 dw)
+        {
+            dw = clamp ((1.0f - dw) * 0.5f, 0.001f, 0.5f);
+            let a = (phase < 0.5f) ? phase : 0.5f * (phase - 0.5f) / dw + 0.5f;
+            return -Cosine (min (a, 1.0f));
+        }
+
+        float32 Reso1 (float32 phase, float32 dw)
+        {
+            dw = lerp (1.0f, 16.0f, dw);
+            let carrier = -Cosine (fmod (phase * dw, 1.0f));
+            let win = RampDown (phase);
+            return ((win * carrier) + win) - 1.0f;
+        }
+
+        float32 Reso2 (float32 phase, float32 dw)
+        {
+            dw = lerp (1.0f, 16.0f, dw);
+            let carrier = -Cosine (fmod (phase * dw, 1.0f));
+            let win = Triangle (phase);
+            return ((win * carrier) + win) - 1.0f;
+        }
+
+        float32 Reso3 (float32 phase, float32 dw)
+        {
+            dw = lerp (1.0f, 16.0f, dw);
+            let carrier = -Cosine (fmod (phase * dw, 1.0f));
+            let win = HalfTrapezoid (phase);
+            return ((win * carrier) + win) - 1.0f;
+        }
+    }
+
+    processor Processor
+    {
+        output stream float32 out;
+
+        input event
+        {
+            float shapeIn       [[ name: "Shape",      min: 0,         max: 7,         init: 0,    text: "Saw|Square|Pulse|DblSine|SawPulse|Reso1|Reso2|Reso3"]];
+            float frequencyIn   [[ name: "Frequency",  min: minFreqHz, max: maxFreqHz, init: defaultFreqHz ]];
+            float dcwIn         [[ name: "DCW",        min: 0.,        max: 1,         init: 0 ]];
+        }
+
+        event shapeIn (float v)        { shape = wrap<8> (floor (v)); }
+        event frequencyIn (float v)    { s.update (processor.period, v); }
+        event dcwIn (float v)          { dcw = v; }
+
+        soul::oscillators::phasor::State s;
+        float32 dcw, safeDcw;
+        wrap<8> shape = wrap<8> (Shape::Saw);
+
+        void run()
+        {
+            loop
+            {
+                float32 y;
+
+                if (s.phase <= s.phaseIncrement) // only update dcw on zero crossings
+                    safeDcw = dcw;
+
+                if (shape == Shape::Saw)
+                    y = Shapers::Saw (s.phase, safeDcw);
+                else if (shape == Shape::Square)
+                    y = Shapers::Square (s.phase, safeDcw);
+                else if (shape == Shape::Pulse)
+                    y = Shapers::Pulse (s.phase, safeDcw);
+                else if (shape == Shape::SawPulse)
+                    y = Shapers::SawPulse (s.phase, safeDcw);
+                else if (shape == Shape::DblSine)
+                    y = Shapers::DblSine (s.phase, safeDcw);
+                else if (shape == Shape::Reso1)
+                    y = Shapers::Reso1 (s.phase, safeDcw);
+                else if (shape == Shape::Reso2)
+                    y = Shapers::Reso2 (s.phase, safeDcw);
+                else if (shape == Shape::Reso3)
+                    y = Shapers::Reso3 (s.phase, safeDcw);
+
+                s.process();
+
+                out << SampleType (y);
+
+                advance();
+            }
+        }
+    }
+}
+
+graph PDSynth_DSP  [[ main ]]
+{
+    input smoothedGain.volume [[ label: "Volume", min: -40, max: 0, init: -6, step: 1 ]];
+    input event float shapeIn [[ name: "Shape",      min: 0,         max: 7,         init: 0,    text: "Saw|Square|Pulse|DblSine|SawPulse|Reso1|Reso2|Reso3"]];
+    input event float dcwIn   [[ name: "DCW",        min: 0.,        max: 1,         init: 0 ]];
+
+    input event soul::midi::Message midiIn;
+    output stream float out;
+
+    let
+    {
+        voices = Voice[8];
+        voiceAllocator = soul::voice_allocators::Basic(8);
+
+        smoothedGain = soul::gain::SmoothedGainParameter (0.5f);
+        gainProcessor = soul::gain::DynamicGain (float);
+    }
+
+    connection
+    {
+        midiIn -> soul::midi::MPEParser -> voiceAllocator;
+
+        // Plumb the voice allocator to the voices array
+        voiceAllocator.voiceEventOut -> voices.noteOn,
+                                        voices.noteOff,
+                                        voices.pitchBend;
+
+        // Sum the voices audio out to the output
+        voices       -> gainProcessor.in;
+        smoothedGain -> gainProcessor.gain;
+        gainProcessor -> out;
+        shapeIn -> voices.shapeIn;
+        dcwIn -> voices.dcwIn;
+    }
+}
+
+processor PitchMapper
+{
+    input event
+    {
+        soul::note_events::NoteOn noteOn;
+        soul::note_events::PitchBend pitchBend;
+    }
+    
+    output event float32 frequencyOut;
+    
+    event noteOn (soul::note_events::NoteOn e) { lastNote = e; frequencyOut << soul::noteNumberToFrequency(e.note + lastBend.bendSemitones); }
+
+    event pitchBend (soul::note_events::PitchBend e) { lastBend = e; frequencyOut << soul::noteNumberToFrequency(lastNote.note + e.bendSemitones); }
+
+    soul::note_events::NoteOn lastNote;
+    soul::note_events::PitchBend lastBend;
+}
+
+//==============================================================================
+graph Voice
+{
+    input event
+    {
+        soul::note_events::NoteOn noteOn;
+        soul::note_events::NoteOff noteOff;
+        soul::note_events::PitchBend pitchBend;
+        float shapeIn; // TODO: plumbing can be removed at some point
+        float dcwIn;
+    }
+
+    output stream float audioOut;
+
+    let
+    {
+        osc = CZOSC::Processor;
+        amplitudeEnvelope = soul::envelope::FixedAttackReleaseEnvelope (0.f, 0.02f, 0.1f);
+        attenuator = soul::gain::DynamicGain (float);
+        pitchMapper = PitchMapper;
+    }
+
+    connection
+    {
+        noteOn -> pitchMapper.noteOn;
+        pitchBend -> pitchMapper.pitchBend;
+
+        pitchMapper.frequencyOut -> osc.frequencyIn;
+        shapeIn -> osc.shapeIn;
+        dcwIn -> osc.dcwIn;
+
+        noteOn, noteOff -> amplitudeEnvelope.noteIn;
+
+        osc.out -> attenuator.in;
+        amplitudeEnvelope.levelOut -> attenuator.gain;
+        attenuator -> audioOut;
+    }
+}
