@@ -16,21 +16,21 @@
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>
-			<string>9c0G</string>
+			<string>KxnY</string>
 			<key>type</key>
-			<string>aumf</string>
+			<string>aumu</string>
 			<key>version</key>
-			<integer>0</integer>
+			<integer>256</integer>
 		</dict>
 	</array>
 	<key>AudioUnit Version</key>
-	<string>0x00000000</string>
+	<string>0x00000100</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>PDSynth</string>
 	<key>CFBundleGetInfoString</key>
-	<string>PDSynth v0.0.0 Copyright 2020 Acme Inc</string>
+	<string>PDSynth v0.1.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.OliLarkin.audiounit.PDSynth</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -40,11 +40,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.0</string>
+	<string>0.1.0</string>
 	<key>CFBundleSignature</key>
-	<string>9c0G</string>
+	<string>KxnY</string>
 	<key>CFBundleVersion</key>
-	<string>0.0.0</string>
+	<string>0.1.0</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>

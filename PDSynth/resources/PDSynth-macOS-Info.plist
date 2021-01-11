@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>PDSynth</string>
 	<key>CFBundleGetInfoString</key>
-	<string>PDSynth v0.0.0 Copyright 2020 Acme Inc</string>
+	<string>PDSynth v0.1.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIconFile</key>
 	<string>PDSynth.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -19,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.0</string>
+	<string>0.1.0</string>
 	<key>CFBundleSignature</key>
-	<string>9c0G</string>
+	<string>KxnY</string>
 	<key>CFBundleVersion</key>
-	<string>0.0.0</string>
+	<string>0.1.0</string>
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSApplicationCategoryType</key>
