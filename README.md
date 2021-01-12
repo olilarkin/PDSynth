@@ -3,7 +3,7 @@
 
 Edit the DSP in the SOUL online compiler
 
-https://soul.dev/lab/?id=4363803e0145e86fb85b88d4af392a44&0=-6&1=3&2=0.64
+https://soul.dev/lab/?id=87652b5e75b61811d5edc14bba51ce3a&0=-6&1=3&2=0.64
 
 Then copy and paste into PDSynth/PDSynth_DSP.soul
 

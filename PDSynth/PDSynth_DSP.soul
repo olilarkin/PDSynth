@@ -160,14 +160,32 @@ namespace CZOSC (using SampleType = float32)
     }
 }
 
+processor Mono2Stereo
+{
+    input stream float32 in;
+    output stream float32<2> out;
+
+        void run()
+        {
+            loop
+            {
+                let x = in;
+                out << float32<2> (x, x);
+                advance();
+            }
+        }
+}
+
 graph PDSynth_DSP  [[ main ]]
 {
     input smoothedGain.volume [[ label: "Volume", min: -40, max: 0, init: -6, step: 1 ]];
     input event float shapeIn [[ name: "Shape",      min: 0,         max: 7,         init: 0,    text: "Saw|Square|Pulse|DblSine|SawPulse|Reso1|Reso2|Reso3"]];
-    input event float dcwIn   [[ name: "DCW",        min: 0.,        max: 1,         init: 0 ]];
+    input event float dcwIn   [[ name: "DCW",        min: 0.,        max: 1,         init: 0,    step: 0.01 ]];
+
+    //input lfo.rateHzIn;
 
     input event soul::midi::Message midiIn;
-    output stream float out;
+    output stream float<2> out;
 
     let
     {
@@ -176,6 +194,9 @@ graph PDSynth_DSP  [[ main ]]
 
         smoothedGain = soul::gain::SmoothedGainParameter (0.5f);
         gainProcessor = soul::gain::DynamicGain (float);
+        m2s = Mono2Stereo;
+        //lfo = soul::oscillators::lfo::Processor; // correct, works
+        //lfo = soul::oscillators::lfo; // error: Internal compiler error: ""object != nullptr" failed at operator*:59"
     }
 
     connection
@@ -190,7 +211,8 @@ graph PDSynth_DSP  [[ main ]]
         // Sum the voices audio out to the output
         voices       -> gainProcessor.in;
         smoothedGain -> gainProcessor.gain;
-        gainProcessor -> out;
+        gainProcessor -> m2s.in;
+        m2s.out -> out;
         shapeIn -> voices.shapeIn;
         dcwIn -> voices.dcwIn;
     }
@@ -231,7 +253,7 @@ graph Voice
     let
     {
         osc = CZOSC::Processor;
-        amplitudeEnvelope = soul::envelope::FixedAttackReleaseEnvelope (0.f, 0.02f, 0.1f);
+        amplitudeEnvelope = soul::envelope::FixedAttackReleaseEnvelope (0.f, 0.001f, 0.1f);
         attenuator = soul::gain::DynamicGain (float);
         pitchMapper = PitchMapper;
     }

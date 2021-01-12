@@ -71,7 +71,7 @@ void PDSynth::LayoutUI(IGraphics* pGraphics)
   pGraphics->AttachControl(new IVKeyboardControl(kbArea, 36, 72), kCtrlTagKeyboard);
   
   pGraphics->AttachControl(new IBitmapControl(blackBar.GetCentredInside(300, 65), pGraphics->LoadBitmap(WAVES_FN)));
-  pGraphics->AttachControl(new IVTabSwitchControl(buttons.SubRectVertical(3, 0), GetIPlugParamIdx("Shape"), {"0", "1", "2", "3", "4", "5", "6", "7"}, "SHAPE", style));
+  pGraphics->AttachControl(new IVTabSwitchControl(buttons.SubRectVertical(3, 0), GetIPlugParamIdx("Shape"), {"1", "2", "3", "4", "5", "6", "7", "8"}, "SHAPE", style));
   pGraphics->AttachControl(new IWheelControl(wheels.FracRectHorizontal(0.5f)));
   pGraphics->AttachControl(new IWheelControl(wheels.FracRectHorizontal(0.5f, true), IMidiMsg::EControlChangeMsg::kModWheel));
   pGraphics->AttachControl(new IVSliderControl(sliders.SubRectHorizontal(4, 0), GetIPlugParamIdx("DCW"), "DCW", style));

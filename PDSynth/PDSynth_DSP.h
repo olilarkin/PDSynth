@@ -40,7 +40,7 @@ public:
     struct _SparseStreamStatus;
     struct _Event_in_f32_1;
     struct _Event_in_struct_Message_1;
-    struct _Stream_out_f32_1024;
+    struct _Stream_out_vec_2_f32_1024;
     struct soul__midi__MPEParser___State;
     struct soul__voice_allocators__Basic___for__root__PDSynth_DSP_voiceAllocator__VoiceInfo;
     struct soul__voice_allocators__Basic___for__root__PDSynth_DSP_voiceAllocator___State;
@@ -54,6 +54,7 @@ public:
     struct Voice___State;
     struct soul__gain__DynamicGain___for__root__PDSynth_DSP_gainProcessor___State;
     struct soul__gain__SmoothedGainParameter___for__root__PDSynth_DSP_smoothedGain___State;
+    struct Mono2Stereo___State;
     struct _State;
     struct soul__midi__Message;
     struct soul__note_events__NoteOff;
@@ -64,6 +65,7 @@ public:
     struct soul__gain__DynamicGain___for__root__PDSynth_DSP_gainProcessor___IO;
     struct soul__gain__DynamicGain___for__root__Voice_attenuator___IO;
     struct soul__envelope__FixedAttackReleaseEnvelope___for__root__Voice_amplitudeEnvelope___IO;
+    struct Mono2Stereo___IO;
     struct Voice___IO;
     struct _CZOSC__Processor___IO;
     struct StringLiteral;
@@ -94,7 +96,7 @@ public:
     // presents the processor as a set of standard audio and MIDI channels.
 
     static constexpr uint32_t numAudioInputChannels  = 0;
-    static constexpr uint32_t numAudioOutputChannels = 1;
+    static constexpr uint32_t numAudioOutputChannels = 2;
 
     struct MIDIMessage
     {
@@ -112,7 +114,7 @@ public:
     struct RenderContext
     {
         std::array<const FloatType*, 0> inputChannels;
-        std::array<FloatType*, 1> outputChannels;
+        std::array<FloatType*, 2> outputChannels;
         MIDIMessageArray  incomingMIDI;
         uint32_t          numFrames = 0;
     };
@@ -209,7 +211,7 @@ public:
         _addInputEvent_midiIn_struct_Message (state, eventValue);
     }
 
-    DynamicArray<const float> getOutputStreamFrames_out()
+    DynamicArray<const Vector<float, 2>> getOutputStreamFrames_out()
     {
         return { &(_getOutputFrameArrayRef_out (state).elements[0]), static_cast<int32_t> (framesToAdvance) };
     }
@@ -237,7 +239,7 @@ public:
         {
             { "volume",  "in:volume",  EndpointType::event, "float32",                     0, "{ \"label\": \"Volume\", \"min\": -40, \"max\": 0, \"init\": -6, \"step\": 1, \"unit\": \"dB\" }"                                },
             { "shapeIn", "in:shapeIn", EndpointType::event, "float32",                     0, "{ \"name\": \"Shape\", \"min\": 0, \"max\": 7, \"init\": 0, \"text\": \"Saw|Square|Pulse|DblSine|SawPulse|Reso1|Reso2|Reso3\" }" },
-            { "dcwIn",   "in:dcwIn",   EndpointType::event, "float32",                     0, "{ \"name\": \"DCW\", \"min\": 0.0, \"max\": 1, \"init\": 0 }"                                                                    },
+            { "dcwIn",   "in:dcwIn",   EndpointType::event, "float32",                     0, "{ \"name\": \"DCW\", \"min\": 0.0, \"max\": 1, \"init\": 0, \"step\": 0.01 }"                                                    },
             { "midiIn",  "in:midiIn",  EndpointType::event, "Message { int32 midiBytes }", 0, ""                                                                                                                                }
         };
     }
@@ -246,7 +248,7 @@ public:
     {
         return
         {
-            { "out", "out:out", EndpointType::stream, "float32", 1, "" }
+            { "out", "out:out", EndpointType::stream, "float32<2>", 2, "" }
         };
     }
 
@@ -303,9 +305,9 @@ public:
 
     static constexpr const ParameterProperties parameters[] =
     {
-        {  "volume",   "volume",  "dB",  -40.0f,  0.0f,  1.0f,    -6.0f,  true,  false,  false,  "",  ""                                                     },
-        {  "shapeIn",  "Shape",   "",    0.0f,    7.0f,  1.0f,    0.0f,   true,  false,  false,  "",  "Saw|Square|Pulse|DblSine|SawPulse|Reso1|Reso2|Reso3"  },
-        {  "dcwIn",    "DCW",     "",    0.0f,    1.0f,  0.001f,  0.0f,   true,  false,  false,  "",  ""                                                     }
+        {  "volume",   "volume",  "dB",  -40.0f,  0.0f,  1.0f,   -6.0f,  true,  false,  false,  "",  ""                                                     },
+        {  "shapeIn",  "Shape",   "",    0.0f,    7.0f,  1.0f,   0.0f,   true,  false,  false,  "",  "Saw|Square|Pulse|DblSine|SawPulse|Reso1|Reso2|Reso3"  },
+        {  "dcwIn",    "DCW",     "",    0.0f,    1.0f,  0.01f,  0.0f,   true,  false,  false,  "",  ""                                                     }
     };
 
     static std::vector<ParameterProperties> getParameterProperties() { return { parameters,  parameters  + numParameters }; }
@@ -313,7 +315,7 @@ public:
     static constexpr uint32_t numInputBuses  = 0;
     static constexpr uint32_t numOutputBuses = 1;
 
-    static constexpr const AudioBus outputBuses[numOutputBuses] = { { "out", 1 } };
+    static constexpr const AudioBus outputBuses[numOutputBuses] = { { "out", 2 } };
 
     static std::vector<AudioBus> getInputBuses()  { return {}; }
     static std::vector<AudioBus> getOutputBuses() { return { outputBuses,  outputBuses  + numOutputBuses }; }
@@ -624,9 +626,9 @@ public:
         int32_t m_numFrames;
     };
 
-    struct _Stream_out_f32_1024
+    struct _Stream_out_vec_2_f32_1024
     {
-        FixedArray<float, 1024> m_buffer;
+        FixedArray<Vector<float, 2>, 1024> m_buffer;
     };
 
     struct soul__midi__MPEParser___State
@@ -713,6 +715,11 @@ public:
         int32_t m_remainingRampSamples;
     };
 
+    struct Mono2Stereo___State
+    {
+        int32_t m__resumePoint, m__frameCount, m__arrayEntry, m__sessionID, m__processorId;
+    };
+
     struct _State
     {
         int32_t m__resumePoint, m__frameCount, m__arrayEntry, m__sessionID, m__processorId, m__framesToAdvance;
@@ -720,12 +727,13 @@ public:
         _SparseStreamStatus m__sparseStreamStatus;
         _Event_in_f32_1 m__in_volume, m__in_shapeIn, m__in_dcwIn;
         _Event_in_struct_Message_1 m__in_midiIn;
-        _Stream_out_f32_1024 m__out_out;
+        _Stream_out_vec_2_f32_1024 m__out_out;
         soul__midi__MPEParser___State m_MPEParser_state;
         soul__voice_allocators__Basic___for__root__PDSynth_DSP_voiceAllocator___State m_voiceAllocator_state;
         FixedArray<Voice___State, 8> m_voices_state;
         soul__gain__DynamicGain___for__root__PDSynth_DSP_gainProcessor___State m_gainProcessor_state;
         soul__gain__SmoothedGainParameter___for__root__PDSynth_DSP_smoothedGain___State m_smoothedGain_state;
+        Mono2Stereo___State m_m2s_state;
     };
 
     struct soul__midi__Message
@@ -777,6 +785,12 @@ public:
         float m__out_levelOut;
     };
 
+    struct Mono2Stereo___IO
+    {
+        float m__in_in;
+        Vector<float, 2> m__out_out;
+    };
+
     struct Voice___IO
     {
         float m__out_audioOut;
@@ -810,6 +824,7 @@ public:
         FixedArray<Voice___IO, 8> _3 = {};
         soul__gain__SmoothedGainParameter___for__root__PDSynth_DSP_smoothedGain___IO _4 = {};
         soul__gain__DynamicGain___for__root__PDSynth_DSP_gainProcessor___IO _5 = {};
+        Mono2Stereo___IO _6 = {};
 
         _2 = _internal___minInt32 (1024, maxFrames);
         _updateRampingStreams (_state, _2);
@@ -830,7 +845,10 @@ public:
                            _5.m__in_in = ((((((_3[0].m__out_audioOut + _3[1].m__out_audioOut) + _3[2].m__out_audioOut) + _3[3].m__out_audioOut) + _3[4].m__out_audioOut) + _3[5].m__out_audioOut) + _3[6].m__out_audioOut) + _3[7].m__out_audioOut;
                            _5.m__in_gain = _4.m__out_gain;
                            soul__gain__DynamicGain___for__root__PDSynth_DSP_gainProcessor__run (_state.m_gainProcessor_state, _5);
-                           _writeToStream_struct__Stream_out_f32_1024 (_state.m__out_out, _state.m__frameCount, _5.m__out_out);
+                           _6 = ZeroInitialiser();
+                           _6.m__in_in = _5.m__out_out;
+                           Mono2Stereo__run (_state.m_m2s_state, _6);
+                           _writeToStream_struct__Stream_out_vec_2_f32_1024 (_state.m__out_out, _state.m__frameCount, _6.m__out_out);
                            _state.m__frameCount = _state.m__frameCount + 1;
                            goto _main_loop_check;
         }
@@ -888,6 +906,9 @@ public:
         _state.m_smoothedGain_state.m__sessionID = _state.m__sessionID;
         _state.m_smoothedGain_state.m__processorId = 16;
         soul__gain__SmoothedGainParameter___for__root__PDSynth_DSP_smoothedGain___initialise (_state.m_smoothedGain_state);
+        _state.m_m2s_state.m__arrayEntry = 0;
+        _state.m_m2s_state.m__sessionID = _state.m__sessionID;
+        _state.m_m2s_state.m__processorId = 17;
     }
 
     void _addInputEvent_volume_f32 (_State& _state, const float& event) noexcept
@@ -924,7 +945,7 @@ public:
         soul__midi__MPEParser___parseMIDI_struct_Message (_state.m_MPEParser_state, event);
     }
 
-    FixedArray<float, 1024>& _getOutputFrameArrayRef_out (_State& state) noexcept
+    FixedArray<Vector<float, 2>, 1024>& _getOutputFrameArrayRef_out (_State& state) noexcept
     {
         return state.m__out_out.m_buffer;
     }
@@ -973,7 +994,7 @@ public:
         _exit: {}
     }
 
-    void _writeToStream_struct__Stream_out_f32_1024 (_Stream_out_f32_1024& stream, int32_t writePos, float value) noexcept
+    void _writeToStream_struct__Stream_out_vec_2_f32_1024 (_Stream_out_vec_2_f32_1024& stream, int32_t writePos, Vector<float, 2> value) noexcept
     {
         stream.m_buffer[writePos] = value;
     }
@@ -1621,7 +1642,7 @@ public:
                             goto _exit;
         }
         _break_1: { _state.m_level = 0;
-                    attackSamples = static_cast<int32_t> (static_cast<int32_t> ((sampleRate * 1.0) * 0.019999999552965165));
+                    attackSamples = static_cast<int32_t> (static_cast<int32_t> ((sampleRate * 1.0) * 0.0010000000474974514));
                     _2 = std::pow (2.0, -1.0 / static_cast<double> (attackSamples));
                     _3 = std::pow (static_cast<double> (_state.m_targetLevel) + 2.0, 1.0 / static_cast<double> (attackSamples));
                     _state.m_attackMultiplier = static_cast<float> (static_cast<float> (_2 * _3));
@@ -1692,6 +1713,24 @@ public:
                    goto _loop_0;
         }
         _break_0: { return s.m_phase; }
+    }
+
+    //==============================================================================
+    void Mono2Stereo__run (Mono2Stereo___State& _state, Mono2Stereo___IO& _io) noexcept
+    {
+        Vector<float, 2> out_value_out = {}, _2 = {};
+        float _3 = {};
+        float x = {};
+
+        out_value_out = ZeroInitialiser();
+        _3 = _io.m__in_in;
+        x = static_cast<float> (_3);
+        _2 = ZeroInitialiser();
+        _2[0] = static_cast<float> (x);
+        _2[1] = static_cast<float> (x);
+        out_value_out = out_value_out + _2;
+        _state.m__resumePoint = 1;
+        _io.m__out_out = out_value_out;
     }
 
     //==============================================================================
