@@ -350,7 +350,7 @@ Module['FS_createPath']('/resources', 'img', true, true);
     }
   
    }
-   loadPackage({"files": [{"filename": "/resources/img/waves@2x.png", "start": 0, "end": 22648, "audio": 0}], "remote_package_size": 22648, "package_uuid": "d67377f8-48ee-4d95-bba3-b0e16f935c95"});
+   loadPackage({"files": [{"filename": "/resources/img/waves@2x.png", "start": 0, "end": 22648, "audio": 0}], "remote_package_size": 22648, "package_uuid": "b9e14339-07a3-4838-b46d-5fc24d0c866b"});
   
   })();
   
