@@ -1,7 +1,7 @@
 #define PLUG_NAME "PDSynth"
 #define PLUG_MFR "OliLarkin"
-#define PLUG_VERSION_HEX 0x00000201
-#define PLUG_VERSION_STR "0.2.1"
+#define PLUG_VERSION_HEX 0x00000202
+#define PLUG_VERSION_STR "0.2.2"
 #define PLUG_UNIQUE_ID 'KxnY'
 #define PLUG_MFR_ID 'Acme'
 #define PLUG_URL_STR "https://iplug2.github.io"
