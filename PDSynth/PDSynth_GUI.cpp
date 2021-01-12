@@ -10,15 +10,15 @@ IGraphics* PDSynth::CreateGraphics()
 
 void PDSynth::LayoutUI(IGraphics* pGraphics)
 {
-  IRECT bounds = pGraphics->GetBounds().GetPadded(-10);
+  IRECT bounds = pGraphics->GetBounds();
   pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
   pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
   
+  auto blackBar = bounds.ReduceFromTop(65);
   auto kbArea = bounds.ReduceFromBottom(100);
   auto wheels = kbArea.ReduceFromLeft(100);
   auto panel = bounds.GetPadded(-10.f);
-  auto logo = panel.GetGridCell(0, 1, 5);
-  auto buttons = panel.GetGridCell(2, 1, 5);
+  auto buttons = panel.GetGridCell(0, 1, 5);
   auto sliders = panel.GetGridCell(4, 1, 5);
 
   const IVStyle style {
@@ -65,12 +65,12 @@ void PDSynth::LayoutUI(IGraphics* pGraphics)
   };
 
   pGraphics->AttachPanelBackground(COLOR_DARK_GRAY);
-
-  pGraphics->AttachControl(new ITextControl(logo.FracRectVertical(0.25, true), "PDSynth", IText(50, COLOR_WHITE)));
+  pGraphics->AttachControl(new IPanelControl(blackBar, COLOR_BLACK));
+  pGraphics->AttachControl(new ITextControl(blackBar.GetPadded(-10).GetFromLeft(200), "PD-SYNTH", IText(35, COLOR_WHITE, DEFAULT_FONT, EAlign::Near)));
 
   pGraphics->AttachControl(new IVKeyboardControl(kbArea, 36, 72), kCtrlTagKeyboard);
   
-//  pGraphics->AttachControl(new ISVGControl(buttons.SubRectVertical(3, 0), pGraphics->LoadSVG(WAVES_FN)));
+  pGraphics->AttachControl(new IBitmapControl(blackBar.GetCentredInside(300, 65), pGraphics->LoadBitmap(WAVES_FN)));
   pGraphics->AttachControl(new IVTabSwitchControl(buttons.SubRectVertical(3, 0), GetIPlugParamIdx("Shape"), {"0", "1", "2", "3", "4", "5", "6", "7"}, "SHAPE", style));
   pGraphics->AttachControl(new IWheelControl(wheels.FracRectHorizontal(0.5f)));
   pGraphics->AttachControl(new IWheelControl(wheels.FracRectHorizontal(0.5f, true), IMidiMsg::EControlChangeMsg::kModWheel));
