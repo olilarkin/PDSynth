@@ -53,3 +53,4 @@
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
 #define WAVES_FN "waves.png"
+#define WAVES2X_FN "waves@2X.png"

@@ -149,6 +149,8 @@ END
 3 TEXTINCLUDE
 BEGIN
     "#include ""..\\config.h""\r\n"
+    "WAVES_FN PNG WAVES_FN\r\n"
+    "WAVES2X_FN PNG WAVES2X_FN\r\n"
     "ROBOTO_FN TTF ROBOTO_FN\0"
 END
 
@@ -230,6 +232,8 @@ END
 //
 #include "..\config.h"
 ROBOTO_FN TTF ROBOTO_FN
+WAVES_FN PNG WAVES_FN
+WAVES2X_FN PNG WAVES2X_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
